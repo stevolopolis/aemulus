@@ -2,27 +2,22 @@ const express = require('express')
 const cors = require('cors')
 const app = express()
 
-let notes = [
-  {
-    id: 1,
-    content: "HTML is easy",
-    date: "2022-01-10T17:30:31.098Z",
-    important: true
-  },
-  {
-    id: 2,
-    content: "Browser can execute only Javascript",
-    date: "2022-01-10T18:39:34.091Z",
-    important: false
-  },
-  {
-    id: 3,
-    content: "GET and POST are the most important methods of HTTP protocol",
-    date: "2022-01-10T19:20:14.298Z",
-    important: true
-  }
-]
+const mongoose = require('mongoose')
 
+const password = process.argv[2]
+
+// DO NOT SAVE YOUR PASSWORD TO GITHUB!!
+const url = process.env.MONDODB_URI
+
+mongoose.set('strictQuery',false)
+mongoose.connect(url)
+
+const noteSchema = new mongoose.Schema({
+  content: String,
+  important: Boolean,
+})
+
+const Note = mongoose.model('Note', noteSchema)
 app.use(express.json())
 app.use(express.static('dist'))
 app.use(cors())
@@ -60,7 +55,11 @@ app.post('/api/notes', (request, response) => {
 })
 
 app.get('/api/notes', (req, res) => {
-  res.json(notes)
+  Note
+  .find({})
+  .then(notes => {
+    response.send(notes)
+  })
 })
 
 app.delete('/api/notes/:id', (request, response) => {
